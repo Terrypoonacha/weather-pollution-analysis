@@ -1,0 +1,45 @@
+{
+    "coord": {
+        "lon": 9.177,
+        "lat": 48.7823
+    },
+    "weather": [
+        {
+            "id": 800,
+            "main": "Clear",
+            "description": "clear sky",
+            "icon": "01n"
+        }
+    ],
+    "base": "stations",
+    "main": {
+        "temp": 12.16,
+        "feels_like": 11.34,
+        "temp_min": 10.92,
+        "temp_max": 13.2,
+        "pressure": 1020,
+        "humidity": 73,
+        "sea_level": 1020,
+        "grnd_level": 976
+    },
+    "visibility": 10000,
+    "wind": {
+        "speed": 1.54,
+        "deg": 60
+    },
+    "clouds": {
+        "all": 0
+    },
+    "dt": 1745696619,
+    "sys": {
+        "type": 1,
+        "id": 1274,
+        "country": "DE",
+        "sunrise": 1745640694,
+        "sunset": 1745692218
+    },
+    "timezone": 7200,
+    "id": 2825297,
+    "name": "Stuttgart",
+    "cod": 200
+}
