@@ -3,6 +3,10 @@ import requests
 import pandas as pd
 from datetime import datetime
 from google.cloud import bigquery
+import logging
+
+# Enable structured logging
+logging.basicConfig(level=logging.INFO)
 
 # Constants
 API_KEY = os.environ.get("API_KEY", "dcc5e4a95e415de8a13ddefd6884d19a")
@@ -20,7 +24,7 @@ def fetch_air_pollution():
         response.raise_for_status()
         data = response.json()["list"][0]
         components = data["components"]
-        return {
+        result = {
             "datetime": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             "aqi": data["main"]["aqi"],
             "co": components.get("co"),
@@ -32,28 +36,40 @@ def fetch_air_pollution():
             "pm10": components.get("pm10"),
             "nh3": components.get("nh3")
         }
+        logging.info(f"✅ API fetch successful at {result['datetime']}")
+        return result
     except Exception as e:
-        print(f"❌ Fetch error: {e}")
+        logging.error(f"❌ Fetch error: {e}", exc_info=True)
         return None
 
 def clean_data(df):
-    df = df.dropna()
-    df = df[(df["aqi"] >= 1) & (df["aqi"] <= 5)]
-    return df
+    try:
+        cleaned = df.dropna()
+        cleaned = cleaned[(cleaned["aqi"] >= 1) & (cleaned["aqi"] <= 5)]
+        logging.info(f"🧹 Cleaned data — {len(cleaned)} rows retained")
+        return cleaned
+    except Exception as e:
+        logging.error(f"❌ Error cleaning data: {e}", exc_info=True)
+        return pd.DataFrame()
 
 def append_to_bigquery(df):
-    client = bigquery.Client(project=PROJECT_ID)
-    table_ref = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
-    job_config = bigquery.LoadJobConfig(
-        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
-        autodetect=True
-    )
-    job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
-    job.result()
-    print("✅ Data pushed to BigQuery")
+    try:
+        client = bigquery.Client(project=PROJECT_ID)
+        table_ref = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
+        job_config = bigquery.LoadJobConfig(
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+            autodetect=True
+        )
+        job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
+        job.result()
+        logging.info("✅ Data pushed to BigQuery")
+    except Exception as e:
+        logging.error(f"❌ Failed to append to BigQuery: {e}", exc_info=True)
 
-# ✅ This MUST be at top-level — this is the Cloud Function entry point!
+# ✅ Cloud Function entry point
 def push_weather_data(request):
+    logging.info("🚀 Cloud Function triggered")
+
     row = fetch_air_pollution()
     if not row:
         return ("❌ Failed to fetch data", 500)
@@ -61,6 +77,7 @@ def push_weather_data(request):
     df = pd.DataFrame([row])
     df = clean_data(df)
     if df.empty:
+        logging.warning("⚠️ No valid data after cleaning")
         return ("⚠️ No valid data after cleaning", 204)
 
     append_to_bigquery(df)

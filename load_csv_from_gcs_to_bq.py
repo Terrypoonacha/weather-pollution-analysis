@@ -26,3 +26,4 @@ load_job = client.load_table_from_uri(gcs_uri, table_id, job_config=job_config)
 load_job.result()  # Wait for completion
 
 print(f"✅ Upload complete: {load_job.output_rows} rows loaded to {table_id}")
+    
