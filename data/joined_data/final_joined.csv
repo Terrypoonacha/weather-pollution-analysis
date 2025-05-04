@@ -1,0 +1,1 @@
+date,Samplingpoint,Pollutant,End,Value,Unit,AggType,Validity,Verification,ResultTime,FkObservationLog,city,temp,feels_like,temp_min,temp_max,pressure,humidity,visibility,wind_speed,wind_deg,weather_main,weather_description
