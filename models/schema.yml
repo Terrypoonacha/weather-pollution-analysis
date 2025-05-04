@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: static_data_model
+    description: "Model for static pollution data"
+    columns:
+      - name: Samplingpoint
+        tests: [not_null]
+      - name: Pollutant
+        tests: [not_null]
+
+  - name: weather_pollution_model
+    description: "Model for real-time weather data"
+    columns:
+      - name: datetime
+        tests: [not_null]
+
+  - name: joined_data_model
+    description: "Join of static and weather pollution data"
+    columns:
+      - name: datetime
+        tests: [not_null]
+      - name: static_value
+        description: "Pollution value from static source"
+
+  - name: daily_avg_pollution
+    description: "Average PM2.5 and PM10 per day"
+    columns:
+      - name: day
+        tests: [not_null]
+      - name: avg_pm2_5
+      - name: avg_pm10
+
+  - name: daily_max_aqi
+    description: "Daily maximum AQI"
+    columns:
+      - name: day
+        tests: [not_null]
+      - name: max_aqi
+
+  - name: pm25_violations
+    description: "Count of daily PM2.5 violations"
+    columns:
+      - name: day
+        tests: [not_null]
+      - name: pm2_5_violations
